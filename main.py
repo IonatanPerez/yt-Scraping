@@ -12,21 +12,21 @@ def get_source_code(url):
     time.sleep(2)  # Allow 2 seconds for the web page to open
     scroll_pause_time = 1 # You can set your own pause time. My laptop is a bit slow so I use 1 sec
     screen_height = driver.execute_script("return window.screen.height;")   # get the screen height of the web
-    urls_found = 0
-
+    total_urls_list = []
     while True:
         source_code = driver.page_source
         urls = extract_urls(source_code)
-        if len(urls) == urls_found:
-            print (f"Found {len(urls)} urls in total, it looks like we reached the end of the page")
+        print (f"Found {len(urls)} new urls in this page")
+        total_urls_list.extend(urls)
+        if len(urls) == 0:
+            print (f"Found {len(total_urls_list)} urls in total, it looks like we reached the end of the page")
             break
-        urls_found = len(urls)
         print (f"Found {len(urls)} urls until now, we will scroll down to find more")
         remove_elements_by_class(driver, "style-scope ytd-rich-item-renderer")
         driver.execute_script(f"window.scrollBy(0, {10*screen_height});")  # We set on 10 screen to ensure that we move until the hidden elements because the page load more than one screen of elements.
         time.sleep(scroll_pause_time)
     driver.quit()    
-    return source_code
+    return total_urls_list
     
 
 def extract_urls(source_code):
